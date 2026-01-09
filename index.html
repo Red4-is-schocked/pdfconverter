@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>R4B XPDF | Image to PDF Converter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* CSS Reset & Base Styles */
+    :root {
+      --primary-dark: #0a0a0f;
+      --secondary-dark: #151520;
+      --accent-green: #00ff9d;
+      --accent-teal: #00e5ff;
+      --accent-purple: #9d4edd;
+      --text-primary: #ffffff;
+      --text-secondary: #b0b0c0;
+      --glass-bg: rgba(20, 25, 40, 0.7);
+      --glass-border: rgba(100, 255, 255, 0.1);
+      --shadow-glow: 0 0 20px rgba(0, 255, 157, 0.2);
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', 'Roboto', sans-serif;
+      background-color: var(--primary-dark);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(0, 229, 255, 0.05) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(0, 255, 157, 0.05) 0%, transparent 20%);
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* Typography */
+    h1, h2, h3, h4 {
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    
+    h1 {
+      font-size: 3.5rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-teal));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    html {
+  scroll-behavior: smooth;
+}
+
+
+    h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    p {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+    
+    .lead {
+      font-size: 1.25rem;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+    
+    /* Navigation */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      padding: 1.5rem 0;
+      transition: var(--transition);
+      backdrop-filter: blur(10px);
+      background-color: rgba(10, 10, 15, 0.8);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent-green);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .logo i {
+      font-size: 1.5rem;
+    }
+    
+    .nav-desktop {
+      display: none;
+    }
+    
+    .nav-mobile {
+      display: flex;
+    }
+    
+    .nav-desktop ul {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+    
+    .nav-desktop a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+      position: relative;
+      padding: 0.5rem 0;
+    }
+    
+    .nav-desktop a:hover, .nav-desktop a.active {
+      color: var(--accent-teal);
+    }
+    
+    .nav-desktop a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-teal));
+      transition: var(--transition);
+    }
+    
+    .nav-desktop a:hover::after {
+      width: 100%;
+    }
+    
+    .hamburger {
+      background: transparent;
+      border: none;
+      color: var(--accent-green);
+      font-size: 1.8rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 80%;
+      max-width: 300px;
+      height: 100vh;
+      background-color: var(--secondary-dark);
+      z-index: 1001;
+      padding: 2rem;
+      transition: var(--transition);
+      box-shadow: -5px 0 30px rgba(0, 0, 0, 0.5);
+    }
+    
+    .mobile-menu.active {
+      right: 0;
+    }
+    
+    .mobile-menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    
+    .mobile-menu ul {
+      list-style: none;
+    }
+    
+    .mobile-menu li {
+      margin-bottom: 1.5rem;
+    }
+    
+    .mobile-menu a {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 1.2rem;
+      display: block;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      transition: var(--transition);
+    }
+    
+    .mobile-menu a:hover {
+      color: var(--accent-teal);
+      padding-left: 0.5rem;
+    }
+    
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition);
+    }
+    
+    .menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    /* Hero Section */
+    .hero {
+      padding: 10rem 0 5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero-content {
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .hero h1 {
+      margin-bottom: 0.5rem;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.5rem;
+      color: var(--accent-teal);
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+    }
+    
+    .cta-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    
+    .btn {
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-teal));
+      color: var(--primary-dark);
+      box-shadow: var(--shadow-glow);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 255, 157, 0.3);
+    }
+    
+    .btn-secondary {
+      background: transparent;
+      color: var(--accent-teal);
+      border: 1px solid var(--accent-teal);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(0, 229, 255, 0.1);
+      transform: translateY(-3px);
+    }
+    
+    /* Visual Design */
+    .visual-container {
+      position: relative;
+      margin: 3rem auto;
+      height: 300px;
+      max-width: 800px;
+    }
+    
+    .machine-visual {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .machine-base {
+      width: 200px;
+      height: 100px;
+      background: linear-gradient(90deg, #1a1a2e, #16213e);
+      border-radius: 20px;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    
+    .machine-screen {
+      position: absolute;
+      top: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 150px;
+      background: linear-gradient(135deg, rgba(0, 255, 157, 0.1), rgba(0, 229, 255, 0.1));
+      border-radius: 20px;
+      border: 2px solid rgba(0, 229, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    
+    .screen-content {
+      width: 80%;
+      height: 80%;
+      background: rgba(10, 10, 15, 0.8);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 1rem;
+    }
+    
+    .screen-icon {
+      color: var(--accent-green);
+      font-size: 2rem;
+    }
+    
+    .screen-text {
+      font-size: 0.8rem;
+      color: var(--accent-teal);
+      text-align: center;
+    }
+    
+    .machine-glow {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 250px;
+      height: 30px;
+      background: radial-gradient(ellipse at center, rgba(0, 255, 157, 0.3) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    
+    .floating-elements {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+    
+    .floating-element {
+      position: absolute;
+      background: rgba(0, 229, 255, 0.1);
+      border-radius: 10px;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-teal);
+    }
+    
+    .floating-element:nth-child(1) {
+      width: 60px;
+      height: 60px;
+      top: 10%;
+      left: 10%;
+      animation: float 8s ease-in-out infinite;
+    }
+    
+    .floating-element:nth-child(2) {
+      width: 40px;
+      height: 40px;
+      top: 60%;
+      right: 15%;
+      animation: float 6s ease-in-out infinite reverse;
+    }
+    
+    .floating-element:nth-child(3) {
+      width: 50px;
+      height: 50px;
+      bottom: 20%;
+      left: 15%;
+      animation: float 7s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+    
+    /* Upload Section */
+    .upload-section {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 2rem;
+      margin: 3rem auto;
+      max-width: 800px;
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-glow);
+    }
+    
+    .upload-area {
+      border: 2px dashed rgba(0, 229, 255, 0.3);
+      border-radius: 15px;
+      padding: 3rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-bottom: 1.5rem;
+    }
+    
+    .upload-area:hover {
+      border-color: var(--accent-teal);
+      background: rgba(0, 229, 255, 0.05);
+    }
+    
+    .upload-icon {
+      font-size: 3rem;
+      color: var(--accent-green);
+      margin-bottom: 1rem;
+    }
+    
+    .upload-text h3 {
+      color: var(--accent-teal);
+    }
+    
+    .file-input {
+      display: none;
+    }
+    
+    .image-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      justify-content: center;
+    }
+    
+    .preview-item {
+      width: 100px;
+      height: 100px;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .remove-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 24px;
+      height: 24px;
+      background-color: rgba(255, 0, 0, 0.8);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.8rem;
+      cursor: pointer;
+      border: none;
+    }
+    
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+    
+    .btn-convert {
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-teal));
+      color: white;
+      padding: 1rem 2.5rem;
+    }
+    
+    .btn-convert:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(157, 78, 221, 0.3);
+    }
+    
+    /* Features Section */
+    .features {
+      padding: 5rem 0;
+    }
+    
+    .section-title {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .section-title h2 {
+      color: var(--accent-teal);
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    
+    .feature-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 2rem;
+      border: 1px solid var(--glass-border);
+      transition: var(--transition);
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-10px);
+      box-shadow: var(--shadow-glow);
+    }
+    
+    .feature-icon {
+      font-size: 2.5rem;
+      color: var(--accent-green);
+      margin-bottom: 1rem;
+    }
+    
+    /* Footer */
+    footer {
+      background-color: var(--secondary-dark);
+      padding: 3rem 0 2rem;
+      margin-top: 3rem;
+      border-top: 1px solid var(--glass-border);
+    }
+    
+    .footer-content {
+      text-align: center;
+    }
+    
+    .footer-logo {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+    
+    .copyright {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: 2rem;
+    }
+    
+    /* Responsive Styles */
+    @media (min-width: 768px) {
+      h1 {
+        font-size: 4.5rem;
+      }
+      
+      .hero-subtitle {
+        font-size: 2rem;
+      }
+      
+      .nav-desktop {
+        display: flex;
+      }
+      
+      .nav-mobile {
+        display: none;
+      }
+      
+      .features-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      
+      .visual-container {
+        height: 400px;
+      }
+      
+      .machine-base {
+        width: 300px;
+        height: 120px;
+      }
+      
+      .machine-screen {
+        width: 200px;
+        height: 200px;
+        top: -120px;
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .hero {
+        padding: 12rem 0 8rem;
+      }
+      
+      h1 {
+        font-size: 5.5rem;
+      }
+      
+      .hero-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+    
+    /* Mobile-specific adjustments */
+    @media (max-width: 767px) {
+      h1 {
+        font-size: 2.5rem;
+        letter-spacing: 0.1em;
+      }
+      
+      h2 {
+        font-size: 2rem;
+      }
+      
+      .hero {
+        padding: 8rem 0 3rem;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+      
+      .cta-buttons {
+        flex-direction: column;
+      }
+      
+      .upload-section {
+        padding: 1.5rem;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .machine-visual {
+        margin-top: 2rem;
+      }
+    }
+    
+    /* Utility Classes */
+    .text-center {
+      text-align: center;
+    }
+    
+    .mt-1 { margin-top: 1rem; }
+    .mt-2 { margin-top: 2rem; }
+    .mt-3 { margin-top: 3rem; }
+    .mb-1 { margin-bottom: 1rem; }
+    .mb-2 { margin-bottom: 2rem; }
+    .mb-3 { margin-bottom: 3rem; }
+    
+    /* Hide elements for specific screen sizes */
+    .mobile-only {
+      display: block;
+    }
+    
+    .desktop-only {
+      display: none;
+    }
+    
+    @media (min-width: 768px) {
+      .mobile-only {
+        display: none;
+      }
+      
+      .desktop-only {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header & Navigation -->
+  <header>
+    <div class="container header-container">
+      <div class="logo">
+        <i class="fas fa-robot"></i>
+        <span>R4B XPDF</span>
+      </div>
+      
+      <!-- Desktop Navigation -->
+      <nav class="nav-desktop">
+        <ul>
+          <li><a href="#process" class="active">Process</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#blog">Blog</a></li>
+        </ul>
+      </nav>
+      
+      <!-- Mobile Navigation Toggle -->
+      <nav class="nav-mobile">
+        <button class="hamburger" id="hamburger">
+          <i class="fas fa-bars"></i>
+        </button>
+      </nav>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+      <div class="mobile-menu-header">
+        <div class="logo">
+          <i class="fas fa-robot"></i>
+          <span>R4B XPDF</span>
+        </div>
+        <button class="hamburger" id="closeMenu">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <ul>
+        <li><a href="#process">Process</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#blog">Blog</a></li>
+      </ul>
+    </div>
+    
+    <!-- Overlay for mobile menu -->
+    <div class="menu-overlay" id="menuOverlay"></div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1>WELCOME</h1>
+        <h2 class="hero-subtitle">Convert Images to PDF Instantly</h2>
+        <p class="lead">Fast, private, and secure image to PDF converter. Works directly in your browser.</p>
+        
+        <div class="cta-buttons">
+          <button class="btn btn-primary" id="uploadTrigger">
+            <i class="fas fa-cloud-upload-alt"></i> Upload Images
+          </button>
+          <button class="btn btn-secondary" id="demoTrigger">
+            <i class="fas fa-play-circle"></i> Try Demo
+          </button>
+        </div>
+      </div>
+      
+      <!-- Visual Design Element -->
+      <div class="visual-container">
+        <div class="machine-visual">
+          <div class="machine-base">
+            <div class="machine-screen">
+              <div class="screen-content">
+                <i class="fas fa-file-pdf screen-icon"></i>
+                <div class="screen-text">PDF<br>Converter</div>
+              </div>
+            </div>
+            <div class="machine-glow"></div>
+          </div>
+        </div>
+        
+        <!-- Floating elements for futuristic effect -->
+        <div class="floating-elements">
+          <div class="floating-element">
+            <i class="fas fa-image"></i>
+          </div>
+          <div class="floating-element">
+            <i class="fas fa-file-pdf"></i>
+          </div>
+          <div class="floating-element">
+            <i class="fas fa-bolt"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Upload Section -->
+  <section class="upload-section container" id="process">
+    <div class="upload-area" id="uploadArea">
+      <div class="upload-icon">
+        <i class="fas fa-cloud-upload-alt"></i>
+      </div>
+      <div class="upload-text">
+        <h3>Drag & Drop Images Here</h3>
+        <p>or click to browse files (JPG, PNG, GIF, BMP)</p>
+        <p class="mt-1">Supports up to 20 images at once</p>
+      </div>
+      <input type="file" id="imageInput" class="file-input" multiple accept="image/*">
+    </div>
+    
+    <!-- Image Preview Area -->
+    <div class="image-preview" id="imagePreview">
+      <!-- Preview images will be added here -->
+    </div>
+    
+    <div class="action-buttons">
+      <button class="btn btn-convert" id="convertBtn" disabled>
+        <i class="fas fa-magic"></i> Convert to PDF
+      </button>
+      <button class="btn btn-secondary" id="clearBtn" disabled>
+        <i class="fas fa-trash-alt"></i> Clear All
+      </button>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-title">
+        <h2>Why Choose R4B XPDF?</h2>
+        <p>Experience the future of document conversion</p>
+      </div>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-bolt"></i>
+          </div>
+          <h3>Lightning Fast</h3>
+          <p>Convert multiple images to PDF in seconds with our optimized processing engine.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <h3>100% Private</h3>
+          <p>Your files never leave your browser. No uploads to external servers required.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-cogs"></i>
+          </div>
+          <h3>AI-Powered</h3>
+          <p>Smart image optimization and automatic formatting for perfect PDF output.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="about">
+  <div class="container">
+    <div class="section-title">
+      <h2>About R4B XPDF</h2>
+      <p>Built for speed, privacy, and simplicity</p>
+    </div>
+
+    <p class="lead text-center">
+      R4B XPDF is a modern image to PDF converter designed to work fully inside your browser.
+      Your files never leave your device. No uploads. No tracking.
+    </p>
+  </div>
+</section>
+
+<section class="features" id="faq">
+  <div class="container">
+    <div class="section-title">
+      <h2>Frequently Asked Questions</h2>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3>Is R4B XPDF free?</h3>
+        <p>Yes. You can convert images to PDF for free with no registration.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3>Are my files safe?</h3>
+        <p>Absolutely. Everything runs locally in your browser.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3>Do I need to install anything?</h3>
+        <p>No installation required. R4B XPDF works directly online.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features" id="blog">
+  <div class="container">
+    <div class="section-title">
+      <h2>Blog</h2>
+      <p>Tips, updates, and productivity guides</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3>How to Convert Images to PDF</h3>
+        <p>Learn the fastest way to create high-quality PDFs from images.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3>Why Browser-Based Tools Are Safer</h3>
+        <p>Discover why local tools protect your privacy better.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3>Best PDF Practices in 2026</h3>
+        <p>Optimize your documents for sharing and printing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo logo">
+          <i class="fas fa-robot"></i>
+          <span>R4B XPDF</span>
+        </div>
+        <p>The future of document conversion is here</p>
+        <div class="copyright">
+          &copy; 2026 R4B XPDF. All rights reserved. made with ❣️ by red4</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- jsPDF CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
+  <script>
+    // Mobile Menu Toggle
+    const hamburger = document.getElementById('hamburger');
+    const closeMenu = document.getElementById('closeMenu');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuOverlay = document.getElementById('menuOverlay');
+    
+    hamburger.addEventListener('click', () => {
+      mobileMenu.classList.add('active');
+      menuOverlay.classList.add('active');
+    });
+    
+    closeMenu.addEventListener('click', () => {
+      mobileMenu.classList.remove('active');
+      menuOverlay.classList.remove('active');
+    });
+    
+    menuOverlay.addEventListener('click', () => {
+      mobileMenu.classList.remove('active');
+      menuOverlay.classList.remove('active');
+    });
+    
+    // File Upload Logic
+    const uploadArea = document.getElementById('uploadArea');
+    const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const convertBtn = document.getElementById('convertBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const uploadTrigger = document.getElementById('uploadTrigger');
+    const demoTrigger = document.getElementById('demoTrigger');
+    
+    let selectedImages = [];
+    
+    // Open file dialog when clicking upload area or button
+    uploadArea.addEventListener('click', () => {
+      imageInput.click();
+    });
+    
+    uploadTrigger.addEventListener('click', () => {
+      imageInput.click();
+    });
+    
+    // Handle file selection
+    imageInput.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      handleImageFiles(files);
+    });
+    
+    // Handle drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = 'var(--accent-teal)';
+      uploadArea.style.background = 'rgba(0, 229, 255, 0.05)';
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.style.borderColor = 'rgba(0, 229, 255, 0.3)';
+      uploadArea.style.background = 'transparent';
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = 'rgba(0, 229, 255, 0.3)';
+      uploadArea.style.background = 'transparent';
+      
+      const files = Array.from(e.dataTransfer.files).filter(file => 
+        file.type.startsWith('image/')
+      );
+      
+      handleImageFiles(files);
+    });
+    
+    // Process image files
+    function handleImageFiles(files) {
+      if (files.length === 0) return;
+      
+      // Limit to 20 images
+      const limitedFiles = files.slice(0, 20);
+      
+      limitedFiles.forEach(file => {
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+          const imageData = e.target.result;
+          selectedImages.push({file, data: imageData});
+          
+          // Create preview element
+          const previewItem = document.createElement('div');
+          previewItem.className = 'preview-item';
+          
+          const img = document.createElement('img');
+          img.src = imageData;
+          img.alt = 'Selected image';
+          
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'remove-btn';
+          removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+          removeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const index = selectedImages.findIndex(img => img.data === imageData);
+            if (index !== -1) {
+              selectedImages.splice(index, 1);
+              previewItem.remove();
+              updateButtonStates();
+            }
+          });
+          
+          previewItem.appendChild(img);
+          previewItem.appendChild(removeBtn);
+          imagePreview.appendChild(previewItem);
+          
+          updateButtonStates();
+        };
+        
+        reader.readAsDataURL(file);
+      });
+      
+      // Reset file input to allow selecting same files again
+      imageInput.value = '';
+    }
+    
+    // Update button states based on selected images
+    function updateButtonStates() {
+      if (selectedImages.length > 0) {
+        convertBtn.disabled = false;
+        clearBtn.disabled = false;
+      } else {
+        convertBtn.disabled = true;
+        clearBtn.disabled = true;
+      }
+    }
+    
+    // Clear all images
+    clearBtn.addEventListener('click', () => {
+      selectedImages = [];
+      imagePreview.innerHTML = '';
+      updateButtonStates();
+    });
+    
+    // Demo functionality
+    demoTrigger.addEventListener('click', () => {
+      // Simulate adding demo images
+      selectedImages = [];
+      imagePreview.innerHTML = '';
+      
+      // Create demo image data
+      const demoImages = [
+        'https://images.unsplash.com/photo-1579546929662-711aa81148cf?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=200&q=80',
+        'https://images.unsplash.com/photo-1541701494587-cb58502866ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&h=200&q=80',
+        'https://images.unsplash.com/photo-1550684376-efcbd6e3f031?ixlib=rb-1.2.1&auto=format&fit=crop&w-200&h=200&q=80'
+      ];
+      
+      demoImages.forEach((src, index) => {
+        // Create a canvas to generate image data
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 200;
+        canvas.height = 200;
+        
+        // Create gradient background
+        const gradient = ctx.createLinearGradient(0, 0, 200, 200);
+        gradient.addColorStop(0, '#00ff9d');
+        gradient.addColorStop(1, '#00e5ff');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 200, 200);
+        
+        // Add text
+        ctx.fillStyle = '#0a0a0f';
+        ctx.font = 'bold 24px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`Demo ${index + 1}`, 100, 100);
+        
+        // Convert to data URL
+        const imageData = canvas.toDataURL('image/jpeg');
+        
+        selectedImages.push({file: {name: `demo-image-${index+1}.jpg`}, data: imageData});
+        
+        // Create preview element
+        const previewItem = document.createElement('div');
+        previewItem.className = 'preview-item';
+        
+        const img = document.createElement('img');
+        img.src = imageData;
+        img.alt = 'Demo image';
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-btn';
+        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        removeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const imgIndex = selectedImages.findIndex(img => img.data === imageData);
+          if (imgIndex !== -1) {
+            selectedImages.splice(imgIndex, 1);
+            previewItem.remove();
+            updateButtonStates();
+          }
+        });
+        
+        previewItem.appendChild(img);
+        previewItem.appendChild(removeBtn);
+        imagePreview.appendChild(previewItem);
+      });
+      
+      updateButtonStates();
+      
+      // Scroll to upload section
+      document.getElementById('process').scrollIntoView({ behavior: 'smooth' });
+      
+      // Show notification
+      showNotification('Demo images loaded. You can now convert them to PDF!');
+    });
+    
+    // Convert to PDF function
+    convertBtn.addEventListener('click', async () => {
+      if (selectedImages.length === 0) {
+        showNotification('Please select images first!', 'error');
+        return;
+      }
+      
+      // Show loading state
+      convertBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+      convertBtn.disabled = true;
+      
+      try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+        
+        for (let i = 0; i < selectedImages.length; i++) {
+          if (i > 0) {
+            pdf.addPage();
+          }
+          
+          // Add image to PDF
+          const imgData = selectedImages[i].data;
+          
+          // Get image dimensions
+          const img = new Image();
+          await new Promise((resolve) => {
+            img.onload = resolve;
+            img.src = imgData;
+          });
+          
+          // Calculate dimensions to fit page
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const pageHeight = pdf.internal.pageSize.getHeight();
+          
+          let imgWidth = pageWidth - 20; // 10px margin on each side
+          let imgHeight = (img.height * imgWidth) / img.width;
+          
+          // If image is too tall, scale it down
+          if (imgHeight > pageHeight - 20) {
+            imgHeight = pageHeight - 20;
+            imgWidth = (img.width * imgHeight) / img.height;
+          }
+          
+          // Center image on page
+          const xOffset = (pageWidth - imgWidth) / 2;
+          const yOffset = (pageHeight - imgHeight) / 2;
+          
+          pdf.addImage(imgData, 'JPEG', xOffset, yOffset, imgWidth, imgHeight);
+          
+          // Add page number
+          pdf.setFontSize(10);
+          pdf.setTextColor(100);
+          pdf.text(`Page ${i + 1} of ${selectedImages.length}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+        }
+        
+        // Save PDF
+        pdf.save('converted-images.pdf');
+        
+        // Show success notification
+        showNotification(`PDF created successfully with ${selectedImages.length} image(s)!`);
+        
+      } catch (error) {
+        console.error('Error creating PDF:', error);
+        showNotification('Error creating PDF. Please try again.', 'error');
+      } finally {
+        // Reset button
+        convertBtn.innerHTML = '<i class="fas fa-magic"></i> Convert to PDF';
+        convertBtn.disabled = false;
+      }
+    });
+    
+    // Notification function
+    function showNotification(message, type = 'success') {
+      // Remove existing notification
+      const existingNotification = document.querySelector('.notification');
+      if (existingNotification) {
+        existingNotification.remove();
+      }
+      
+      // Create notification element
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.innerHTML = `
+        <div style="position: fixed; top: 100px; right: 20px; background: ${type === 'error' ? '#ff3b3b' : 'var(--secondary-dark)'}; 
+        color: white; padding: 1rem 1.5rem; border-radius: 10px; z-index: 10000; 
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3); border-left: 4px solid ${type === 'error' ? '#ff0000' : 'var(--accent-green)'}; 
+        max-width: 300px; animation: slideIn 0.3s ease;">
+          <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}" style="margin-right: 10px;"></i>
+          ${message}
+        </div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        notification.remove();
+      }, 5000);
+    }
+    
+    // Add CSS for notification animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>
